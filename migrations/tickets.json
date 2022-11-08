@@ -1,0 +1,19 @@
+{
+    "TableName": "tickets",
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "uuid",
+        "AttributeType": "S"
+      }
+    ],
+    "KeySchema": [
+      {
+        "AttributeName": "uuid",
+        "KeyType": "HASH"
+      }
+    ],
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 5,
+      "WriteCapacityUnits": 5
+    }
+  }
