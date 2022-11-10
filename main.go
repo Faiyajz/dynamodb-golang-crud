@@ -14,17 +14,17 @@ import (
 )
 
 type Controller struct {
-	Storage TicketStorer
+	Storage TicketStorerInterface
 }
 
-func NewTicketStorage(session *session.Session, timeout time.Duration) TableBasics {
+func DatabaseConnection(session *session.Session, timeout time.Duration) TableBasics {
 	return TableBasics{
 		timeout:        timeout,
 		DynamoDbClient: dynamodb.New(session),
 	}
 }
 
-func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CreateTicket(w http.ResponseWriter, r *http.Request) {
 	var newTicket Ticket
 
 	if err := json.NewDecoder(r.Body).Decode(&newTicket); err != nil {
@@ -36,7 +36,7 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 
 	newTicket.UUID = uuid.New().String()
 
-	err := c.Storage.Insert(r.Context(), Ticket{
+	err := c.Storage.InsertTicket(r.Context(), Ticket{
 		UUID:   newTicket.UUID,
 		Owner:  newTicket.Owner,
 		Status: newTicket.Status,
@@ -61,25 +61,26 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	// Create a session instance.
-	ses, err := New(Config{
+	ses, err := CreateNewSession(Config{
 		Address: "http://localhost:4566",
 		Region:  "ap-southeast-1",
 		Profile: "localstack",
-		ID:      "*****",
-		Secret:  "*****",
+		ID:      "AKIAXPTTGDCVODQUK7WF",
+		Secret:  "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",
 	})
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Instantiate HTTP app
-	controller := Controller{
-		Storage: NewTicketStorage(ses, time.Second*15),
+	controllRoute := Controller{
+		Storage: DatabaseConnection(ses, time.Second*15),
 	}
 
 	router := mux.NewRouter()
 	route := router.PathPrefix("/api/v1").Subrouter()
-	route.HandleFunc("/ticket/create", controller.Create)
+
+	route.HandleFunc("/ticket/create", controllRoute.CreateTicket)
 
 	log.Fatalln(http.ListenAndServe(":8000", route))
 

@@ -18,11 +18,11 @@ type Config struct {
 }
 
 type TableBasics struct {
-	timeout        time.Duration
 	DynamoDbClient *dynamodb.DynamoDB
+	timeout        time.Duration
 }
 
-func New(config Config) (*session.Session, error) {
+func CreateNewSession(config Config) (*session.Session, error) {
 	return session.NewSessionWithOptions(
 		session.Options{
 			Config: aws.Config{

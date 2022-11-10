@@ -9,11 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type TicketStorer interface {
-	Insert(ctx context.Context, ticket Ticket) error
+type TicketStorerInterface interface {
+	InsertTicket(ctx context.Context, ticket Ticket) error
 }
 
-func (basics TableBasics) Insert(ctx context.Context, ticket Ticket) error {
+func (basics TableBasics) InsertTicket(ctx context.Context, ticket Ticket) error {
 	ctx, cancel := context.WithTimeout(ctx, basics.timeout)
 	defer cancel()
 
